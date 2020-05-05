@@ -42,4 +42,6 @@ c) When the agent action chooses disease action and it is not equal to the goal 
 
 ## Todo
 
-Current Implementation doesn't incorporate the hierarchical part. Need to add it when anatomical data is ready.
+a) Current Implementation doesn't incorporate the hierarchical part. Need to add it when anatomical data is ready.
+
+b) Add User Simulator documentation.
