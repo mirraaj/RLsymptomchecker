@@ -22,22 +22,22 @@ class UserSimulator:
         self.num_disease = len(self.disease_name)
         # Number of Symptom.
         self.num_symptom = len(self.symptom_name)
-        # Initial State.
 
+        # Initial State.
         with open(disease_symptom_mapping_path) as f:
             self.disease_symptom_mapping_dict = json.load(f)
 
         self.initial_state = np.array([[0, 0, 1.] for _ in range(self.num_symptom)])
-        
+
         # Symptom mapping
         self.symptom_dict = {s : n for n, s in enumerate(self.symptom_name)}
-        
+
         # Action Space
         self.action_type = {'type' : None, 'value' : None}
-        
+
         # Make action space
         self.action_space = []
-        
+
         # Diagnosis Action Space
         self.diagnosis_action_space = []
         
@@ -101,6 +101,7 @@ class UserSimulator:
             self.state[self.symptom_dict[s]] = np.array([1.,0,0])
 
         return self.state.flatten()
+
     def step(self, agent_action):
         """
         Return the response of the user sim. to the agent by using rules that simulate a user.
@@ -127,23 +128,30 @@ class UserSimulator:
             # print ('symptom check')
             symptom_to_check = action['value']
             if symptom_to_check in self.symptom_list:
+                # Bool : To check if the symptom exists in our state space.
                 check_if_symptom_already_in_state = (self.state[self.symptom_dict[symptom_to_check]] == np.array([1.,0,0])).all()
+                # Return -1 if state already checked.
                 if check_if_symptom_already_in_state:
                     return self.state.flatten(), -1, False, {}
                 else:
+                    # If symptom not in state, append it to state.
                     self.state[self.symptom_dict[symptom_to_check]] = np.array([1., 0, 0])
                     return self.state.flatten(), 0, False, {}
             else:
+                # If symptom not present in the state.
                 self.state[self.symptom_dict[symptom_to_check]] = np.array([0, 1., 0])
                 return self.state.flatten(), 0, False, {} 
         elif agent_action_type == 'diagnosis_check':
-            # print ('diagnosis check')
+
             disease_to_check = action['value']
+            # If Goal equals Disease to check.
             if disease_to_check == self.goal:
                 return self.state.flatten(), 1, True, {}
+            # If Goal is not equal to Disease to check. 
             else:
                 return self.state.flatten(), 0, True, {}
 
+    # Get top 5 - top 10 disease.
     def get_top_diseases(self, q_values):
         q_values = list(q_values)
         idx = sorted(range(len(q_values)), key=lambda k: q_values[k], reverse=True)
